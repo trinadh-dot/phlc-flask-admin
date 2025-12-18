@@ -22,7 +22,10 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = _normalize_database_url(os.environ.get('DATABASE_URL'))
+    SQLALCHEMY_DATABASE_URI = _normalize_database_url(
+        os.environ.get("SQLALCHEMY_DATABASE_URI")
+        or os.environ.get("DATABASE_URL")
+    )
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
