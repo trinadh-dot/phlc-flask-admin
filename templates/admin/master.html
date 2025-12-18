@@ -1,0 +1,134 @@
+{% extends 'admin/base.html' %}
+
+{% block head_css %}
+{{ super() }}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom_admin.css') }}">
+{% endblock %}
+
+{% block page_body %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-database"></i>
+                <span class="logo-text">Admin Panel</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-search">
+            <input type="text" id="searchTables" placeholder="Search tables..." class="search-input">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <div class="menu-section-title">
+                    <i class="fas fa-table"></i>
+                    <span>Database Tables</span>
+                    <span class="table-count" id="tableCount">0</span>
+                </div>
+                
+                <ul class="menu-items" id="menuItems">
+                    {% if menu_items %}
+                        {% for item in menu_items %}
+                            {% if item.is_category() %}
+                                <li class="menu-category">
+                                    <div class="category-header">
+                                        <i class="fas fa-folder"></i>
+                                        <span>{{ item.name }}</span>
+                                        <i class="fas fa-chevron-down toggle-icon"></i>
+                                    </div>
+                                    <ul class="category-items">
+                                        {% for subitem in item.get_children() %}
+                                            <li class="menu-item">
+                                                <a href="{{ subitem.get_url() }}">
+                                                    <i class="fas fa-table"></i>
+                                                    <span>{{ subitem.name }}</span>
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li class="menu-item" data-table-name="{{ item.name|lower }}">
+                                    <a href="{{ item.get_url() }}">
+                                        <i class="fas fa-table"></i>
+                                        <span class="item-name">{{ item.name }}</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <li class="no-tables">
+                            <p style="padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.5);">
+                                No tables available
+                            </p>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Admin User</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div class="breadcrumb">
+                <i class="fas fa-home"></i>
+                {% block breadcrumb %}
+                    <span class="breadcrumb-item">Dashboard</span>
+                {% endblock %}
+            </div>
+            
+            <div class="top-bar-actions">
+                <button class="btn-icon" title="Refresh" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="btn-icon" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            {% block body %}
+            {{ super() }}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/custom_admin.js') }}"></script>
+<script>
+// Count and update table count after page load
+document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+    const countElement = document.getElementById('tableCount');
+    if (countElement) {
+        countElement.textContent = menuItems.length;
+    }
+    
+    // Highlight active item
+    const currentPath = window.location.pathname;
+    menuItems.forEach(item => {
+        const link = item.querySelector('a');
+        if (link && link.getAttribute('href') === currentPath) {
+            item.classList.add('active');
+        }
+    });
+});
+</script>
+{% endblock %}
